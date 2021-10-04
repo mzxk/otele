@@ -29,3 +29,24 @@ func (t *teleBot) Do(method string, result interface{}, params ...interface{}) (
 	}
 	return resp.String(), err
 }
+
+type StruFrom struct {
+	ID           int64  `json:"id"`
+	IsBot        bool   `json:"is_bot"`
+	FirstName    string `json:"first_name"`
+	LastName     string `json:"last_name"`
+	UserName     string `json:"username"`
+	LanguageCode string `json:"language_code"`
+}
+type StruChat struct {
+	ID        int64  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserName  string `json:"username"`
+	Type      string `json:"type"`
+}
+type StruEntities struct {
+	Offset int64
+	Length int64
+	Type   string
+}
