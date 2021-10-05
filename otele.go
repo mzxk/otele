@@ -1,19 +1,34 @@
 package otele
 
 import (
+	"strings"
+
 	"github.com/mzxk/ohttp"
+	"github.com/mzxk/oval"
 )
 
 type teleBot struct {
-	url   string
-	proxy string
+	url          string
+	proxy        string
+	db           *oval.KV
+	updateOffset int64
+
+	fMessage func(*Message) string
 }
 
 func New(key, proxy string) *teleBot {
-	return &teleBot{
+	ss := strings.Split(key, ":")
+	db, err := oval.NewKV("bot" + ss[0])
+	if err != nil {
+		panic(err)
+	}
+	t := &teleBot{
 		url:   "https://api.telegram.org/bot" + key + "/",
 		proxy: proxy,
+		db:    db,
 	}
+	t.UpdateStart()
+	return t
 }
 func (t *teleBot) Do(method string, result interface{}, params ...interface{}) (string, error) {
 	ohtp := ohttp.HTTP(t.url+method, params...)
