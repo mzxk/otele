@@ -8,8 +8,19 @@ type Message struct {
 		Chat      StruChat
 		Date      int64
 		Text      string
-		Entities  StruEntities
+		Entities  []StruEntities
 	}
+}
+
+func (t *teleBot) handleMessage(msg Message) {
+	if len(msg.Message.Entities) > 0 {
+		if msg.Message.Entities[0].Type == "bot_command" {
+
+		}
+	}
+}
+func (t *teleBot) OnMessage(f func(*Message) string) {
+	t.fMessage = f
 }
 
 // "update_id": 92270932,
