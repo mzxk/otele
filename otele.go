@@ -1,9 +1,12 @@
 package otele
 
 import (
+	"log"
 	"strings"
+	"time"
 
 	"github.com/mzxk/ohttp"
+	"github.com/mzxk/olog"
 	"github.com/mzxk/oval"
 )
 
@@ -13,7 +16,8 @@ type teleBot struct {
 	db           *oval.KV
 	updateOffset int64
 
-	fMessage func(*Message) string
+	fMessage func(*Message)
+	fCommand map[string]func([]string, *Message)
 }
 
 func New(key, proxy string) *teleBot {
@@ -26,8 +30,10 @@ func New(key, proxy string) *teleBot {
 		url:   "https://api.telegram.org/bot" + key + "/",
 		proxy: proxy,
 		db:    db,
+
+		fMessage: func(m *Message) {},
+		fCommand: map[string]func([]string, *Message){},
 	}
-	t.UpdateStart()
 	return t
 }
 func (t *teleBot) Do(method string, result interface{}, params ...interface{}) (string, error) {
@@ -44,24 +50,18 @@ func (t *teleBot) Do(method string, result interface{}, params ...interface{}) (
 	}
 	return resp.String(), err
 }
-
-type StruFrom struct {
-	ID           int64  `json:"id"`
-	IsBot        bool   `json:"is_bot"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	UserName     string `json:"username"`
-	LanguageCode string `json:"language_code"`
-}
-type StruChat struct {
-	ID        int64  `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserName  string `json:"username"`
-	Type      string `json:"type"`
-}
-type StruEntities struct {
-	Offset int64
-	Length int64
-	Type   string
+func (t *teleBot) SendMessage(chatid int64, text string, replyID int64) {
+	var result struct {
+		Ok bool
+	}
+RE:
+	s, e := t.Do("sendMessage", &result, "chat_id", chatid, "text", text, "reply_to_message_id", replyID)
+	if e != nil {
+		log.Println(e)
+		time.Sleep(1 * time.Second)
+		goto RE
+	}
+	if !result.Ok {
+		olog.Warn(s)
+	}
 }

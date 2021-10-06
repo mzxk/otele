@@ -1,56 +1,60 @@
 package otele
 
 import (
-	"fmt"
 	"log"
+	"sync"
+	"time"
 
 	"github.com/mzxk/olog"
+	"github.com/mzxk/otele/ot"
 )
 
-func (t *teleBot) UpdateStart() {
+func (t *teleBot) Start() {
 	//TODO WSS
 	t.updateOffset = t.db.GetInt("offset")
 	go func() {
 		for {
-			var rlt struUpdate
+			var rlt ot.Updates
 			rltStr, err := t.Do("getUpdates", &rlt, "limit", 100, "offset", t.updateOffset)
-			log.Println(rltStr)
 			if err != nil {
 				olog.Warn(err)
 			}
 			if rlt.Ok {
-				for i := range rlt.Result {
-					go t.update(rlt.Result[i])
+				var wg sync.WaitGroup
+				if len(rlt.Result) > 0 {
+					log.Println(rltStr)
 				}
+				t.setOffset(rlt.Result)
+				for i := range rlt.Result {
+					wg.Add(1)
+					temp := rlt.Result[i]
+					go func() {
+						t.update(temp)
+						wg.Done()
+					}()
+				}
+				wg.Wait()
 			} else {
 				olog.Warn("Telegram Result Not OK:")
 			}
+			time.Sleep(5 * time.Second)
 		}
 	}()
 }
 
-func (t *teleBot) setOffset(up int64) {
-	if t.updateOffset <= up {
-		t.updateOffset = up + 1
-		t.setOffset(t.updateOffset)
+func (t *teleBot) setOffset(up []ot.Update) {
+	if len(up) == 0 {
+		return
 	}
-	t.db.Set("offset", t.updateOffset)
+	id := up[len(up)-1].UpdateID
+	t.db.Set("offset", id+1)
+	t.updateOffset = id + 1
 }
-func (t *teleBot) update(up StruUpdate) {
-	if up.Message.UpdateID != 0 {
-		t.setOffset(up.Message.Message.MessageID)
+func (t *teleBot) update(up ot.Update) {
+	// oval.PrintStruct(up)
+	if up.UpdateID != 0 {
 		t.handleMessage(up.Message)
 	} else {
-		fmt.Println("not handle")
+		log.Println("not handle", up)
 	}
-}
-
-type struUpdate struct {
-	Ok     bool
-	Result []StruUpdate
-}
-type StruUpdate struct {
-	UpdateID   int64      `json:"update_id"`
-	Message    Message    `json:"message"`
-	ChatMember ChatMember `json:"my_chat_member"`
 }

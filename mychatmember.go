@@ -1,14 +1,5 @@
 package otele
 
-type ChatMember struct {
-	UpdateID   int64 `json:"update_id"`
-	ChatMember struct {
-		Chat StruChat
-		From StruFrom
-		Date int64
-	}
-}
-
 //   {
 // 	"update_id": 92270933,
 // 	"my_chat_member": {
