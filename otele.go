@@ -73,3 +73,27 @@ RE:
 		olog.Warn(s)
 	}
 }
+
+//SendFile 暂时只能发送文件,之后可能修改成发送其他类型的东西
+func (t *teleBot) SendFile(path string, id int64) error {
+	return t.sendFile("sendDocument", path, "document", id)
+}
+
+//SendFile 暂时只能发送文件,之后可能修改成发送其他类型的东西
+func (t *teleBot) sendFile(method, path, field string, id int64) error {
+
+	ohtp := ohttp.HTTP(t.url+method, "chat_id", id)
+	if t.proxy != "" {
+		ohtp = ohtp.Proxy(t.proxy)
+	}
+	resp, err := ohtp.PostFile(path, field)
+	if err != nil {
+		return err
+	}
+	log.Println(resp.String(), "|", resp.URL)
+	var result struct {
+		Ok bool
+	}
+	err = resp.JSON(&result)
+	return err
+}
