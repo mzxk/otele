@@ -20,7 +20,7 @@ type teleBot struct {
 	fCommand map[string]func([]string, *Message)
 }
 
-func New(key, proxy string) *teleBot {
+func New(key, proxy string) (*teleBot, error) {
 	ss := strings.Split(key, ":")
 	db, err := oval.NewKV("bot" + ss[0])
 	if err != nil {
@@ -34,7 +34,15 @@ func New(key, proxy string) *teleBot {
 		fMessage: func(m *Message) {},
 		fCommand: map[string]func([]string, *Message){},
 	}
-	return t
+	return t, t.testBot()
+}
+func (t *teleBot) testBot() error {
+	t.OnCommand("/echo", func(s []string, m *Message) {
+		m.Reply(strings.Join(s, "-"))
+	})
+	s, e := t.Do("getMe", nil)
+	log.Println(s, e)
+	return e
 }
 func (t *teleBot) Do(method string, result interface{}, params ...interface{}) (string, error) {
 	ohtp := ohttp.HTTP(t.url+method, params...)
