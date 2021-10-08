@@ -7,9 +7,6 @@ import (
 	ot "github.com/mzxk/otele/ot"
 )
 
-var fMessage func(*Message)
-var fCmd func(*Message)
-
 type Message struct {
 	MessageID int64
 	Time      int64

@@ -90,7 +90,6 @@ func (t *teleBot) sendFile(method, path, field string, id int64) error {
 	if err != nil {
 		return err
 	}
-	log.Println(resp.String(), "|", resp.URL)
 	var result struct {
 		Ok bool
 	}
