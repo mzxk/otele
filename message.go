@@ -65,8 +65,9 @@ func (t *teleBot) handleMessage(msg ot.Message) {
 func (t *teleBot) OnMessage(f func(*Message)) {
 	t.fMessage = f
 }
-func (t *teleBot) OnCommand(cmd string, f func([]string, *Message)) {
+func (t *teleBot) OnCommand(cmd string, f func([]string, *Message), note ...string) {
 	t.fCommand[cmd] = f
+	t.fCommandNote = append(t.fCommandNote, cmd+"    "+strings.Join(note, "-"))
 }
 
 // "update_id": 92270932,
