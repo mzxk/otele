@@ -1,6 +1,7 @@
 package otele
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -42,9 +43,9 @@ func (t *teleBot) testBot() error {
 	return e
 }
 func (t *teleBot) initDefaultCmd() {
-	t.OnCommand("/echo", func(s []string, m *Message) {
-		m.Reply(strings.Join(s, "-"))
-	}, "Test Command . Just Return your message")
+	t.OnCommand("/getid", func(s []string, m *Message) {
+		m.Reply(fmt.Sprintf("UserID:%d , ChatID:%d", m.FromID, m.ChatID))
+	}, "Return ChatID and UserID")
 	t.OnCommand("/?", func(s []string, m *Message) {
 		m.Reply(strings.Join(t.fCommandNote, "\n"))
 	}, "This Command!")
