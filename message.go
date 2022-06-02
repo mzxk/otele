@@ -18,13 +18,13 @@ type Message struct {
 	Text      string
 	IsCommand bool
 
-	bot *teleBot
+	bot *TeleBot
 }
 
 func (t *Message) Reply(text string) {
 	t.bot.SendMessage(t.ChatID, text, t.MessageID)
 }
-func (t *teleBot) newMessage(msg ot.Message) *Message {
+func (t *TeleBot) newMessage(msg ot.Message) *Message {
 	iscmd := false
 	if len(msg.Entities) > 0 {
 		if msg.Entities[0].Type == "bot_command" {
@@ -47,7 +47,7 @@ func (t *teleBot) newMessage(msg ot.Message) *Message {
 		bot: t,
 	}
 }
-func (t *teleBot) handleMessage(msg ot.Message) {
+func (t *TeleBot) handleMessage(msg ot.Message) {
 	m := t.newMessage(msg)
 	if m.IsCommand {
 		ss := strings.Split(m.Text, " ")
@@ -62,12 +62,14 @@ func (t *teleBot) handleMessage(msg ot.Message) {
 		t.fMessage(m)
 	}
 }
-func (t *teleBot) OnMessage(f func(*Message)) {
+func (t *TeleBot) OnMessage(f func(*Message)) {
 	t.fMessage = f
 }
-func (t *teleBot) OnCommand(cmd string, f func([]string, *Message), note ...string) {
+func (t *TeleBot) OnCommand(cmd string, f func([]string, *Message), note ...string) {
 	t.fCommand[cmd] = f
-	t.fCommandNote = append(t.fCommandNote, cmd+"    "+strings.Join(note, "-"))
+	if len(note) > 0 {
+		t.fCommandNote = append(t.fCommandNote, cmd+"    "+strings.Join(note, "-"))
+	}
 }
 
 // "update_id": 92270932,

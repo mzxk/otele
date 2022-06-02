@@ -8,7 +8,7 @@ import (
 	"github.com/mzxk/oval"
 )
 
-type teleBot struct {
+type TeleBot struct {
 	url          string
 	proxy        string
 	db           *oval.KV
@@ -19,13 +19,13 @@ type teleBot struct {
 	fCommandNote []string
 }
 
-func New(key, proxy string) (*teleBot, error) {
+func New(key, proxy string) (*TeleBot, error) {
 	ss := strings.Split(key, ":")
 	db, err := oval.NewKV("bot" + ss[0])
 	if err != nil {
 		panic(err)
 	}
-	t := &teleBot{
+	t := &TeleBot{
 		url:   "https://api.telegram.org/bot" + key + "/",
 		proxy: proxy,
 		db:    db,
@@ -36,17 +36,17 @@ func New(key, proxy string) (*teleBot, error) {
 	}
 	return t, t.testBot()
 }
-func (t *teleBot) testBot() error {
+func (t *TeleBot) testBot() error {
 	t.initDefaultCmd()
 	s, e := t.Do("getMe", nil)
 	log.Println(s, e)
 	return e
 }
-func (t *teleBot) initDefaultCmd() {
+func (t *TeleBot) initDefaultCmd() {
 	t.OnCommand("/getid", func(s []string, m *Message) {
 		m.Reply(fmt.Sprintf("UserID:%d , ChatID:%d", m.FromID, m.ChatID))
 	}, "Return ChatID and UserID")
-	t.OnCommand("/?", func(s []string, m *Message) {
+	t.OnCommand("/help", func(s []string, m *Message) {
 		m.Reply(strings.Join(t.fCommandNote, "\n"))
-	}, "This Command!")
+	})
 }

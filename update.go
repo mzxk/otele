@@ -9,7 +9,7 @@ import (
 	"github.com/mzxk/otele/ot"
 )
 
-func (t *teleBot) Start() {
+func (t *TeleBot) Start() {
 	//TODO WSS
 	t.updateOffset = t.db.GetInt("offset")
 	go func() {
@@ -42,7 +42,7 @@ func (t *teleBot) Start() {
 	}()
 }
 
-func (t *teleBot) setOffset(up []ot.Update) {
+func (t *TeleBot) setOffset(up []ot.Update) {
 	if len(up) == 0 {
 		return
 	}
@@ -50,7 +50,7 @@ func (t *teleBot) setOffset(up []ot.Update) {
 	t.db.Set("offset", id+1)
 	t.updateOffset = id + 1
 }
-func (t *teleBot) update(up ot.Update) {
+func (t *TeleBot) update(up ot.Update) {
 	// oval.PrintStruct(up)
 	if up.UpdateID != 0 {
 		t.handleMessage(up.Message)
