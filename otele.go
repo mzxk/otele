@@ -46,7 +46,7 @@ func (t *TeleBot) initDefaultCmd() {
 	t.OnCommand("/getid", func(s []string, m *Message) {
 		m.Reply(fmt.Sprintf("UserID:%d , ChatID:%d", m.FromID, m.ChatID))
 	}, "Return ChatID and UserID")
-	t.OnCommand("/help", func(s []string, m *Message) {
+	t.OnCommand("/start", func(s []string, m *Message) {
 		m.Reply(strings.Join(t.fCommandNote, "\n"))
 	})
 }
